@@ -3,6 +3,37 @@ on:
   push:
     paths:
       - 'src/**'
+      - '.github/workflows/ci.yml'
     branches:
       - 'develop'
       - 'release'
+
+env:
+  BRANCH: ${GITHUB_REF##*/}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.USER_CHECKOUT_TOKEN }}
+
+      - name: Run Test
+        run: make test
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/release'
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.USER_CHECKOUT_TOKEN }}
+
+      - name: Build
+        run: |
+          docker build -t ldy/test-automation-system:latest . -f Dockerfile

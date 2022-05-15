@@ -29,6 +29,8 @@ go.work
 /vendor/
 /Godeps/
 
+*/app
+
 ### macOS ###
 # General
 .DS_Store
